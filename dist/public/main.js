@@ -23,7 +23,7 @@
     control.style.marginTop = '1em'
 
     const label = document.createElement('label')
-    label.textContent = 'Page Scale:'
+    label.textContent = 'Scale:'
 
     const minusBtn = document.createElement('button')
     minusBtn.textContent = '-'
@@ -47,7 +47,7 @@
     input.max = '1.5'
     input.step = '0.1'
     input.value = zoom
-    input.style.width = '4em'
+    input.style.width = '3em'
 
     const resetBtn = document.createElement('button')
     resetBtn.textContent = 'Reset'
