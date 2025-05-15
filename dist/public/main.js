@@ -23,17 +23,23 @@
     control.style.marginTop = '1em'
 
     const label = document.createElement('label')
-    label.textContent = 'Page Zoom:'
+    label.textContent = 'Page Scale:'
 
-    const slider = document.createElement('input')
-    slider.type = 'range'
-    slider.min = '0.5'
-    slider.max = '1.5'
-    slider.step = '0.1'
-    slider.value = zoom
+    const minusBtn = document.createElement('button')
+    minusBtn.textContent = '-'
+    minusBtn.addEventListener('click', () => {
+      const newZoom = Math.max(0.5, parseFloat(zoom) - 0.1).toFixed(1)
+      input.value = newZoom
+      applyZoom(newZoom)
+    })
 
-    const zoomText = document.createElement('span')
-    zoomText.textContent = 'Current zoom:'
+    const plusBtn = document.createElement('button')
+    plusBtn.textContent = '+'
+    plusBtn.addEventListener('click', () => {
+      const newZoom = Math.min(1.5, parseFloat(zoom) + 0.1).toFixed(1)
+      input.value = newZoom
+      applyZoom(newZoom)
+    })
 
     const input = document.createElement('input')
     input.type = 'number'
@@ -46,31 +52,37 @@
     const resetBtn = document.createElement('button')
     resetBtn.textContent = 'Reset'
     resetBtn.addEventListener('click', () => {
-      slider.value = defaultZoom
       input.value = defaultZoom
       applyZoom(defaultZoom)
     })
 
-    slider.addEventListener('input', () => {
-      input.value = slider.value
-      applyZoom(slider.value)
-    })
-
     input.addEventListener('input', () => {
-      slider.value = input.value
       applyZoom(input.value)
     })
 
-    control.append(label, slider, zoomText, input, resetBtn)
-
-    // 插入到 #option-theme select 的下方
+    control.append(label, minusBtn, input, plusBtn, resetBtn)
     themeSelect.parentNode.insertBefore(control, themeSelect.nextSibling)
   }
 
-  // 立即套用倍率
+  // apply zoom on load
   document.documentElement.style.zoom = zoom
 
-  // 監控是否載入到 Options
+  // load and apply custom font if enabled and URL is provided
+  if (config.enableFont && config.fontUrl) {
+    const font = new FontFace('CustomFont', `url("${config.fontUrl}")`)
+    font.load().then(loadedFont => {
+      document.fonts.add(loadedFont)
+      const style = document.createElement('style')
+      style.innerHTML = `
+        body, input, textarea, select, button {
+          font-family: 'CustomFont', sans-serif !important;
+        }
+      `
+      document.head.appendChild(style)
+    }).catch(err => console.error("Failed to load custom font:", err))
+  }
+
+  // observe DOM changes to insert controls dynamically
   const observer = new MutationObserver(() => insertZoomControls())
   observer.observe(document.body, { childList: true, subtree: true })
 
