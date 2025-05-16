@@ -47,39 +47,50 @@
     input.max = '1.5'
     input.step = '0.1'
     input.value = zoom
-    input.style.width = '3em'
-
-    const resetBtn = document.createElement('button')
-    resetBtn.textContent = 'Reset'
-    resetBtn.addEventListener('click', () => {
-      input.value = defaultZoom
-      applyZoom(defaultZoom)
-    })
-
+    input.style.width = '4em'
     input.addEventListener('input', () => {
       applyZoom(input.value)
     })
 
-    control.append(label, minusBtn, input, plusBtn, resetBtn)
+    control.append(label, minusBtn, input, plusBtn)
     themeSelect.parentNode.insertBefore(control, themeSelect.nextSibling)
   }
 
   // apply zoom on load
   document.documentElement.style.zoom = zoom
 
-  // load and apply custom font if enabled and URL is provided
-  if (config.enableFont && config.fontUrl) {
-    const font = new FontFace('CustomFont', `url("${config.fontUrl}")`)
-    font.load().then(loadedFont => {
-      document.fonts.add(loadedFont)
-      const style = document.createElement('style')
-      style.innerHTML = `
-        body, input, textarea, select, button {
-          font-family: 'CustomFont', sans-serif !important;
-        }
-      `
-      document.head.appendChild(style)
-    }).catch(err => console.error("Failed to load custom font:", err))
+  // lazy-load and cache custom font
+  if (config.enableFont) {
+    let fontPath = config.fontUrl
+    if (config.localFont) fontPath = '/~/plugins/Page-scale-custom/font/font.ttf'
+
+    const loadFont = () => {
+      if (!fontPath || window.__FONT_LOADED__) return
+      window.__FONT_LOADED__ = true
+      const font = new FontFace('CustomFont', `url("${fontPath}")`)
+      font.load().then(loadedFont => {
+        document.fonts.add(loadedFont)
+        const style = document.createElement('style')
+        style.innerHTML = `
+          body, input, textarea, select, button {
+            font-family: 'CustomFont', sans-serif !important;
+          }
+        `
+        document.head.appendChild(style)
+        localStorage.setItem('fontLoaded', '1')
+      }).catch(err => console.error("Failed to load custom font:", err))
+    }
+
+    if (localStorage.getItem('fontLoaded') === '1') {
+      loadFont()
+    } else {
+      const onInteraction = () => {
+        loadFont()
+        window.removeEventListener('scroll', onInteraction)
+      }
+      window.addEventListener('scroll', onInteraction)
+      setTimeout(loadFont, 3000)
+    }
   }
 
   // observe DOM changes to insert controls dynamically
