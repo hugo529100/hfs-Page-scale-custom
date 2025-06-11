@@ -2,7 +2,7 @@ exports.version = 1.9
 exports.description = "Customize layout styles like max-width, scale level, and custom font file. Design for old ages and hawkeye."
 exports.apiRequired = 10.0
 exports.frontend_js = 'main.js'
-exports.repo = "Hug3O/Page-scale-custom"
+exports.repo = "hugo529100/hfs-Page-scale-custom"
 
 exports.config = {
   maxWidth: {
