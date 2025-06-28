@@ -67,7 +67,19 @@
     const loadFont = () => {
       if (!fontPath || window.__FONT_LOADED__) return
       window.__FONT_LOADED__ = true
-      const font = new FontFace('CustomFont', `url("${fontPath}")`)
+      
+      // Preload the font to avoid FOUT (Flash of Unstyled Text)
+      const preloadLink = document.createElement('link')
+      preloadLink.rel = 'preload'
+      preloadLink.href = fontPath
+      preloadLink.as = 'font'
+      preloadLink.crossOrigin = 'anonymous'
+      document.head.appendChild(preloadLink)
+      
+      const font = new FontFace('CustomFont', `url("${fontPath}")`, {
+        display: 'swap' // Use swap to avoid blocking rendering
+      })
+      
       font.load().then(loadedFont => {
         document.fonts.add(loadedFont)
         const style = document.createElement('style')
@@ -81,16 +93,8 @@
       }).catch(err => console.error("Failed to load custom font:", err))
     }
 
-    if (localStorage.getItem('fontLoaded') === '1') {
-      loadFont()
-    } else {
-      const onInteraction = () => {
-        loadFont()
-        window.removeEventListener('scroll', onInteraction)
-      }
-      window.addEventListener('scroll', onInteraction)
-      setTimeout(loadFont, 3000)
-    }
+    // Remove the timeout and scroll listener, load immediately
+    loadFont()
   }
 
   // observe DOM changes to insert controls dynamically
