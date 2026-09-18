@@ -1,5 +1,5 @@
-exports.version = 1.9
-exports.description = "Customize layout styles like max-width, scale level, and custom font file. Design for old ages and hawkeye."
+exports.version = 2.0
+exports.description = "Accessibility helper that lets users customize max-width, zoom scale, and fonts for better readability."
 exports.apiRequired = 10.0
 exports.frontend_js = 'main.js'
 exports.repo = "Hug3O/Page-scale-custom"
